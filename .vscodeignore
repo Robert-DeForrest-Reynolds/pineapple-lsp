@@ -10,7 +10,7 @@ vsc-extension-quickstart.md
 **/*.ts
 **/.vscode-test.*
 
-node_modules
+
 tests
 __pycache__
 .venv

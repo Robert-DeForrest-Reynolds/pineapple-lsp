@@ -321,5 +321,4 @@ def completions(params: CompletionParams):
 
 
 if __name__ == "__main__":
-    start_server(semantic_server)
-    server.start_io()
+    semantic_server.start_io()

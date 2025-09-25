@@ -3,6 +3,7 @@ import * as cp from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import { LanguageClient, LanguageClientOptions, StreamInfo } from 'vscode-languageclient/node';
+import { exit } from 'process';
 
 let client: LanguageClient;
 
@@ -12,7 +13,7 @@ function runAsync(command: string, args: string[], cwd?: string): Promise<void> 
         const proc = cp.spawn(command, args, {
                               stdio: 'inherit',
                               cwd,
-                              shell: true,
+                              shell: false,
                               windowsHide: true
                               });  // <-- Add this});
         proc.on('error', reject);
@@ -40,19 +41,29 @@ async function ensureVenv(context: vscode.ExtensionContext): Promise<string> {
 }
 
 export async function activate(context: vscode.ExtensionContext) {
+    vscode.window.showInformationMessage('Setting up pineapple-lsp...');
+    const output = vscode.window.createOutputChannel('Pineapple LSP');
+    output.show(true);
     const serverOptions = async (): Promise<StreamInfo> => {
         const venvPath = path.join(context.extensionPath, '.venv');
-        const pythonPath = await ensureVenv(context);
+        let pythonPath: string;
+        try {
+            pythonPath = await ensureVenv(context);
+        } catch (err) {
+            vscode.window.showErrorMessage(`Failed to setup Pineapple LSP: ${err}`);
+            exit(0);
+        }
         const serverPath = path.join(context.extensionPath, 'server', 'pineapple-lsp.py');
-
-        const output = vscode.window.createOutputChannel('Pineapple LSP');
-        output.show(true);
 
         const childProcess = cp.spawn(pythonPath, [serverPath], {
             stdio: ['pipe', 'pipe', 'pipe'],
             cwd: context.extensionPath,
             env: { ...process.env },
             windowsHide: true   // <-- Add this
+        });
+        childProcess.on('error', (err) => {
+            console.log(`Failed to start LSP process: ${err}`);
+            output.appendLine(`Failed to start LSP process: ${err}`);
         });
 
         childProcess.stdout.on('data', (data: Buffer) => output.appendLine(data.toString()));
@@ -76,6 +87,6 @@ export async function activate(context: vscode.ExtensionContext) {
 }
 
 export function deactivate(): Thenable<void> | undefined {
-    if (!client) return undefined;
+    if (!client) { return undefined; }
     return client.stop();
 }
