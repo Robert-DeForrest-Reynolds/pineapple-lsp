@@ -1,0 +1,37 @@
+{
+  "name": "pineapple",
+  "scopeName": "source.pineapple",
+  "patterns": [
+    {
+      "name": "comment.line",
+      "match": "~"
+    },
+    {
+      "name": "string.quoted.double",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": []
+    },
+    {
+      "name": "constant.numeric",
+      "match": "\\b\\d+(\\.\\d+)?\\b"
+    },
+    {
+      "name": "keyword.control",
+      "match": "\\b(if|else|while|for|fnc)\\b"
+    },
+    {
+      "name": "support.function",
+      "match": "\\b(out|int)\\b"
+    },
+    {
+    "name": "entity.name.function.declaration",
+    "match": "\\bfnc\\s+([a-zA-Z_][a-zA-Z]*)"
+    },
+    {
+      "name": "variable.language",
+      "match": "\\b(true|false|null)\\b"
+    }
+  ],
+  "repository": {}
+}

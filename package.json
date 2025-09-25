@@ -1,0 +1,69 @@
+{
+  "name": "pineapple-lsp",
+  "displayName": "pineapple-lsp",
+  "description": "LSP for the Pineapple programming language",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.104.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "pineapple",
+        "aliases": [
+          "pineapple",
+          "papple"
+        ],
+        "extensions": [
+          ".papple"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "pineapple",
+        "scopeName": "source.pineapple",
+        "path": "./syntax/pineapple.tmLanguage.json"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.18.6",
+    "@types/vscode": "^1.104.0",
+    "@typescript-eslint/eslint-plugin": "^8.42.0",
+    "@typescript-eslint/parser": "^8.42.0",
+    "@vscode/test-cli": "^0.0.11",
+    "@vscode/test-electron": "^2.5.2",
+    "eslint": "^9.34.0",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^9.0.1"
+  },
+  "capabilities": {
+  "textDocument": {
+    "semanticTokens": {
+      "legend": {
+        "tokenTypes": ["function","variable","keyword","string","number"],
+        "tokenModifiers": []
+      },
+      "full": true
+    }
+  }
+}
+
+}

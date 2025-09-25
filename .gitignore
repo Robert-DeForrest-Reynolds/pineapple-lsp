@@ -1,0 +1,28 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# Build output
+out/
+dist/
+*.vsix
+
+# TypeScript
+*.tsbuildinfo
+
+# VS Code extension dev
+.vscode-test/
+
+# Python LSP (optional, since you’re bundling Python server in repo)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+
+# Misc
+.DS_Store
+Thumbs.db
