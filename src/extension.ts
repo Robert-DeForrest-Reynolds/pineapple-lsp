@@ -27,10 +27,10 @@ export function activate(context: vscode.ExtensionContext) {
             console.error(`Pineapple LSP exited with code ${code}, signal ${signal}`);
         });
 
-        childProcess.stdout.on('data', (data: Buffer) => {
-            console.log(`Pineapple LSP stdout: ${data.toString()}`);
-            output.appendLine(`stdout: ${data.toString()}`);
-        });
+        // childProcess.stdout.on('data', (data: Buffer) => {
+        //     console.log(`Pineapple LSP stdout: ${data.toString()}`);
+        //     output.appendLine(`stdout: ${data.toString()}`);
+        // });
 
         childProcess.stderr.on('data', (data: Buffer) => {
             console.error(`Pineapple LSP stderr: ${data.toString()}`);
