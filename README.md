@@ -20,6 +20,8 @@ Users appreciate release notes as you update your extension.
  - very basic support for the Pineapple programming language
  - no real autocomplete yet, coming soon
 
-
 ### 1.0.1
  - fixed pygls dependency install
+
+### 1.0.2
+ - fixed windows related errors when building venv
