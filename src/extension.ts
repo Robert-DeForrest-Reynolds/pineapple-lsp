@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 import * as cp from 'child_process';
 import { LanguageClient, LanguageClientOptions, StreamInfo } from 'vscode-languageclient/node';
 import * as path from 'path';
-import * as fs from 'fs';
 
 
 let client: LanguageClient;
@@ -11,20 +10,19 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Server options using StreamInfo for stdio communication
     const serverOptions = (): Promise<StreamInfo> => {
-        const pythonPath = path.join(context.extensionPath, ".venv", "Scripts", "python.exe"); 
+
+        const pythonPath = process.platform === "win32"
+        ? path.join(context.extensionPath, ".venv", "Scripts", "python.exe")
+        : path.join(context.extensionPath, ".venv", "bin", "python");
         const serverPath = path.join(context.extensionPath, "server", "pineapple-lsp.py");
         console.log(pythonPath);
         console.log(serverPath);
 
 
         const output = vscode.window.createOutputChannel("Pineapple LSP");
-        output.show(true); // optional: opens the output panel automatically
+        output.show(true);
+        
         const childProcess = cp.spawn(pythonPath, [serverPath]);
-        // Log Python server stderr for debugging
-        childProcess.stderr.on('data', (data: Buffer) => {
-            console.error(`Pineapple LSP stderr: ${data.toString()}`);
-        });
-
         childProcess.on('exit', (code, signal) => {
             console.error(`Pineapple LSP exited with code ${code}, signal ${signal}`);
         });
@@ -35,6 +33,7 @@ export function activate(context: vscode.ExtensionContext) {
         });
 
         childProcess.stderr.on('data', (data: Buffer) => {
+            console.error(`Pineapple LSP stderr: ${data.toString()}`);
             output.appendLine(`stderr: ${data.toString()}`);
         });
 
