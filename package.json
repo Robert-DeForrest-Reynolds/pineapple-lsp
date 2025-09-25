@@ -58,17 +58,5 @@
   },
   "dependencies": {
     "vscode-languageclient": "^9.0.1"
-  },
-  "capabilities": {
-    "textDocument": {
-      "semanticTokens": {
-        "legend": {
-          "tokenTypes": ["function","variable","keyword","string","number"],
-          "tokenModifiers": []
-        },
-        "full": true
-      }
-    }
   }
-
 }

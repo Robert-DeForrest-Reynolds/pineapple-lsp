@@ -9,7 +9,12 @@ let client: LanguageClient;
 // Run a process and return when finished
 function runAsync(command: string, args: string[], cwd?: string): Promise<void> {
     return new Promise((resolve, reject) => {
-        const proc = cp.spawn(command, args, { stdio: 'inherit', cwd, shell: false });
+        const proc = cp.spawn(command, args, {
+                              stdio: 'inherit',
+                              cwd,
+                              shell: true,
+                              windowsHide: true
+                              });  // <-- Add this});
         proc.on('error', reject);
         proc.on('exit', code => code === 0 ? resolve() : reject(new Error(`Process exited with ${code}`)));
     });
@@ -23,7 +28,7 @@ async function ensureVenv(context: vscode.ExtensionContext): Promise<string> {
         : path.join(venvPath, 'bin', 'python');
 
     if (!fs.existsSync(pythonPath)) {
-        vscode.window.showInformationMessage('Creating Python venv...');
+        vscode.window.showInformationMessage('Creating Python venv for pineapple-lsp...');
         await runAsync('python', ['-m', 'venv', venvPath]);
     }
 
@@ -46,7 +51,8 @@ export async function activate(context: vscode.ExtensionContext) {
         const childProcess = cp.spawn(pythonPath, [serverPath], {
             stdio: ['pipe', 'pipe', 'pipe'],
             cwd: context.extensionPath,
-            env: { ...process.env }
+            env: { ...process.env },
+            windowsHide: true   // <-- Add this
         });
 
         childProcess.stdout.on('data', (data: Buffer) => output.appendLine(data.toString()));
