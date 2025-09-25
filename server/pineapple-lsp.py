@@ -25,9 +25,9 @@ from pygls.lsp.server import LanguageServer
 from pygls.workspace import TextDocument
 
 
-server = LanguageServer("pineapple", "v1.0.0")
+server = LanguageServer("pineapple", "v1.0.1")
 
-print("Running Pineapple LSP 1.0.0")
+print("Running Pineapple LSP 1.0.1")
 
 class TokenModifier(enum.IntFlag):
     deprecated = enum.auto()
