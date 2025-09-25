@@ -18,11 +18,11 @@
     },
     {
       "name": "keyword.control",
-      "match": "\\b(if|else|while|for|fnc)\\b"
+      "match": "\\b(if|elif|else|while|for|try|catch|fnc)\\b"
     },
     {
       "name": "support.function",
-      "match": "\\b(out|int)\\b"
+      "match": "\\b(out|in)\\b"
     },
     {
       "name": "variable.language",
