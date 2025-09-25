@@ -1,71 +1,75 @@
 import * as vscode from 'vscode';
 import * as cp from 'child_process';
-import { LanguageClient, LanguageClientOptions, StreamInfo } from 'vscode-languageclient/node';
+import * as fs from 'fs';
 import * as path from 'path';
-
+import { LanguageClient, LanguageClientOptions, StreamInfo } from 'vscode-languageclient/node';
 
 let client: LanguageClient;
 
-export function activate(context: vscode.ExtensionContext) {
+// Run a process and return when finished
+function runAsync(command: string, args: string[], cwd?: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+        const proc = cp.spawn(command, args, { stdio: 'inherit', cwd, shell: false });
+        proc.on('error', reject);
+        proc.on('exit', code => code === 0 ? resolve() : reject(new Error(`Process exited with ${code}`)));
+    });
+}
 
-    // Server options using StreamInfo for stdio communication
-    const serverOptions = (): Promise<StreamInfo> => {
+// Ensure venv and dependencies
+async function ensureVenv(context: vscode.ExtensionContext): Promise<string> {
+    const venvPath = path.join(context.extensionPath, '.venv');
+    const pythonPath = process.platform === 'win32'
+        ? path.join(venvPath, 'Scripts', 'python.exe')
+        : path.join(venvPath, 'bin', 'python');
 
-        const pythonPath = process.platform === "win32"
-        ? path.join(context.extensionPath, ".venv", "Scripts", "python.exe")
-        : path.join(context.extensionPath, ".venv", "bin", "python");
-        const serverPath = path.join(context.extensionPath, "server", "pineapple-lsp.py");
-        console.log(pythonPath);
-        console.log(serverPath);
+    if (!fs.existsSync(pythonPath)) {
+        vscode.window.showInformationMessage('Creating Python venv...');
+        await runAsync('python', ['-m', 'venv', venvPath]);
+    }
 
+    // Upgrade pip and install dependencies
+    await runAsync(pythonPath, ['-m', 'pip', 'install', '--upgrade', 'pip']);
+    await runAsync(pythonPath, ['-m', 'pip', 'install', 'pygls==2.0.0a6']);
 
-        const output = vscode.window.createOutputChannel("Pineapple LSP");
+    return pythonPath;
+}
+
+export async function activate(context: vscode.ExtensionContext) {
+    const serverOptions = async (): Promise<StreamInfo> => {
+        const venvPath = path.join(context.extensionPath, '.venv');
+        const pythonPath = await ensureVenv(context);
+        const serverPath = path.join(context.extensionPath, 'server', 'pineapple-lsp.py');
+
+        const output = vscode.window.createOutputChannel('Pineapple LSP');
         output.show(true);
-        
-        const childProcess = cp.spawn(pythonPath, [serverPath]);
+
+        const childProcess = cp.spawn(pythonPath, [serverPath], {
+            stdio: ['pipe', 'pipe', 'pipe'],
+            cwd: context.extensionPath,
+            env: { ...process.env }
+        });
+
+        childProcess.stdout.on('data', (data: Buffer) => output.appendLine(data.toString()));
+        childProcess.stderr.on('data', (data: Buffer) => output.appendLine(`ERROR: ${data.toString()}`));
         childProcess.on('exit', (code, signal) => {
-            console.error(`Pineapple LSP exited with code ${code}, signal ${signal}`);
+            output.appendLine(`LSP exited with code ${code}, signal ${signal}`);
         });
 
-        // childProcess.stdout.on('data', (data: Buffer) => {
-        //     console.log(`Pineapple LSP stdout: ${data.toString()}`);
-        //     output.appendLine(`stdout: ${data.toString()}`);
-        // });
-
-        childProcess.stderr.on('data', (data: Buffer) => {
-            console.error(`Pineapple LSP stderr: ${data.toString()}`);
-            output.appendLine(`stderr: ${data.toString()}`);
-        });
-
-
-        return Promise.resolve<StreamInfo>({
-            reader: childProcess.stdout,
-            writer: childProcess.stdin
-        });
+        return { reader: childProcess.stdout, writer: childProcess.stdin };
     };
 
-    // Client options for VSCode
     const clientOptions: LanguageClientOptions = {
         documentSelector: [{ scheme: 'file', language: 'pineapple' }],
         synchronize: {
-            // Watch for changes in Pineapple files
             fileEvents: vscode.workspace.createFileSystemWatcher('**/*.pineapple')
         }
     };
 
-    // Create the language client
-    client = new LanguageClient(
-        'pineapple',
-        'pineapple',
-        serverOptions,
-        clientOptions
-    );
-
-    // Start the client
-    client.start();
+    client = new LanguageClient('pineapple', 'Pineapple LSP', serverOptions, clientOptions);
+    await client.start();
 }
 
 export function deactivate(): Thenable<void> | undefined {
-    if (!client) { return undefined; }
+    if (!client) return undefined;
     return client.stop();
 }

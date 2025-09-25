@@ -4,6 +4,8 @@ A very basic LSP for the Pineapple programming language
 
 ## Requirements
 
+Python >= 3.10
+
 `pygls==2.0.0a6`
 
 ## Known Issues
