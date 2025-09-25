@@ -1,13 +1,18 @@
 {
   "name": "pineapple-lsp",
   "displayName": "pineapple-lsp",
+  "publisher": "Cavan",
   "description": "LSP for the Pineapple programming language",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "engines": {
     "vscode": "^1.104.0"
   },
   "categories": [
     "Other"
+  ],
+  "activationEvents": [
+    "onLanguage:pineapple",
+    "onCommand:pineapple.startServer"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -55,15 +60,15 @@
     "vscode-languageclient": "^9.0.1"
   },
   "capabilities": {
-  "textDocument": {
-    "semanticTokens": {
-      "legend": {
-        "tokenTypes": ["function","variable","keyword","string","number"],
-        "tokenModifiers": []
-      },
-      "full": true
+    "textDocument": {
+      "semanticTokens": {
+        "legend": {
+          "tokenTypes": ["function","variable","keyword","string","number"],
+          "tokenModifiers": []
+        },
+        "full": true
+      }
     }
   }
-}
 
 }
